@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.sqlite
+*.sqlite3
+
+# Virtual environment
+.venv/
+venv/
+
+# Node.js
+node_modules/
+package-lock.json
+whatsapp_session/
+
+# Logs
+*.log
+*.out
+*.err
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment variables / secrets
+.env
+
+# Flask & APScheduler artifacts
+scheduler.db
+jobs.sqlite
+qr_code.txt
+
+# IDE settings
+.vscode/
+.idea/
+
+# Build / dist
+dist/
+build/

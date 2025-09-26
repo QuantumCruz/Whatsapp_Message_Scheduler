@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Scheduler</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #25D366, #128C7E);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            padding: 40px;
+        }
+
+        .form-section {
+            background: #f8f9ff;
+            padding: 30px;
+            border-radius: 15px;
+            border: 1px solid #e1e8ed;
+        }
+
+        .form-section h2 {
+            color: #333;
+            margin-bottom: 25px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #25D366;
+            box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #25D366, #128C7E);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(37, 211, 102, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+        }
+
+        .scheduled-messages {
+            background: #fff;
+        }
+
+        .message-card {
+            background: linear-gradient(135deg, #f8f9ff, #e8f4fd);
+            border: 1px solid #e1e8ed;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .message-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .contact-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1rem;
+        }
+
+        .message-time {
+            color: #666;
+            font-size: 0.9rem;
+            background: rgba(37, 211, 102, 0.1);
+            padding: 5px 10px;
+            border-radius: 15px;
+        }
+
+        .message-preview {
+            color: #555;
+            line-height: 1.5;
+            margin: 10px 0;
+        }
+
+        .message-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn-small {
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            width: auto;
+            flex: 1;
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type=file] {
+            opacity: 0;
+            width: 100%;
+            height: 50px;
+            position: absolute;
+            cursor: pointer;
+        }
+
+        .file-input-display {
+            background: #f8f9ff;
+            border: 2px dashed #ddd;
+            padding: 15px;
+            text-align: center;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .file-input-wrapper:hover .file-input-display {
+            border-color: #25D366;
+            background: rgba(37, 211, 102, 0.05);
+        }
+
+        .icon {
+            width: 20px;
+            height: 20px;
+            display: inline-block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📱 WhatsApp Scheduler</h1>
+            <p>Schedule messages and media to be sent automatically</p>
+        </div>
+
+        <div class="main-content">
+            <div class="form-section">
+                <h2>
+                    <span class="icon">✉️</span>
+                    Schedule New Message
+                </h2>
+
+                <div id="status"></div>
+
+                <form id="scheduleForm">
+                    <div class="form-group">
+                        <label for="contact">Select Contact:</label>
+                        <select id="contact" required>
+                            <option value="">Choose a contact...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="message">Message:</label>
+                        <textarea id="message" placeholder="Enter your message here..." required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="scheduleType">Schedule Type:</label>
+                        <select id="scheduleType" required>
+                            <option value="once">Send Once</option>
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="datetime">Date & Time:</label>
+                        <input type="datetime-local" id="datetime" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="file">Attach File (optional):</label>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="file" accept="image/*,video/*,.pdf,.doc,.docx">
+                            <div class="file-input-display">
+                                <span id="fileDisplay">📎 Click to select file or drag and drop</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn">
+                        🕒 Schedule Message
+                    </button>
+                </form>
+
+                <div style="margin-top: 20px;">
+                    <button id="sendNowBtn" class="btn btn-secondary">
+                        ⚡ Send Immediately
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-section scheduled-messages">
+                <h2>
+                    <span class="icon">📋</span>
+                    Scheduled Messages
+                </h2>
+
+                <div id="messagesList">
+                    <p style="text-align: center; color: #666; padding: 20px;">No scheduled messages yet</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class WhatsAppScheduler {
+            constructor() {
+                this.scheduledMessages = JSON.parse(localStorage.getItem('scheduledMessages') || '[]');
+                this.contacts = {};
+                this.init();
+            }
+
+            init() {
+                this.loadContacts();
+                this.renderMessages();
+                this.setupEventListeners();
+                this.setMinDateTime();
+                this.startMessageChecker();
+            }
+
+            loadContacts() {
+                // Sample contacts - in real implementation, this would load from your contacts.json
+                this.contacts = {
+                    "John Doe": "+1234567890",
+                    "Jane Smith": "+0987654321",
+                    "Mom": "+1122334455",
+                    "Boss": "+5566778899"
+                };
+
+                const contactSelect = document.getElementById('contact');
+                contactSelect.innerHTML = '<option value="">Choose a contact...</option>';
+
+                Object.keys(this.contacts).forEach(name => {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.textContent = name;
+                    contactSelect.appendChild(option);
+                });
+            }
+
+            setupEventListeners() {
+                document.getElementById('scheduleForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.scheduleMessage();
+                });
+
+                document.getElementById('sendNowBtn').addEventListener('click', () => {
+                    this.sendImmediately();
+                });
+
+                document.getElementById('file').addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    const display = document.getElementById('fileDisplay');
+                    if (file) {
+                        display.textContent = `📎 ${file.name}`;
+                    } else {
+                        display.textContent = '📎 Click to select file or drag and drop';
+                    }
+                });
+            }
+
+            setMinDateTime() {
+                const now = new Date();
+                now.setMinutes(now.getMinutes() + 1); // Set minimum to 1 minute from now
+                document.getElementById('datetime').min = now.toISOString().slice(0, 16);
+            }
+
+            scheduleMessage() {
+                const form = document.getElementById('scheduleForm');
+                const formData = new FormData(form);
+
+                const contact = document.getElementById('contact').value;
+                const message = document.getElementById('message').value;
+                const scheduleType = document.getElementById('scheduleType').value;
+                const datetime = document.getElementById('datetime').value;
+                const file = document.getElementById('file').files[0];
+
+                if (!contact || !message || !datetime) {
+                    this.showStatus('Please fill all required fields', 'error');
+                    return;
+                }
+
+                const scheduledMessage = {
+                    id: Date.now(),
+                    contact: contact,
+                    phone: this.contacts[contact],
+                    message: message,
+                    scheduleType: scheduleType,
+                    datetime: datetime,
+                    fileName: file ? file.name : null,
+                    fileData: null, // In real implementation, you'd store file data appropriately
+                    status: 'scheduled',
+                    created: new Date().toISOString()
+                };
+
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        scheduledMessage.fileData = e.target.result;
+                        this.addScheduledMessage(scheduledMessage);
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    this.addScheduledMessage(scheduledMessage);
+                }
+            }
+
+            addScheduledMessage(scheduledMessage) {
+                this.scheduledMessages.push(scheduledMessage);
+                this.saveMessages();
+                this.renderMessages();
+                this.showStatus('Message scheduled successfully!', 'success');
+                document.getElementById('scheduleForm').reset();
+                document.getElementById('fileDisplay').textContent = '📎 Click to select file or drag and drop';
+                this.setMinDateTime();
+            }
+
+            sendImmediately() {
+                const contact = document.getElementById('contact').value;
+                const message = document.getElementById('message').value;
+
+                if (!contact || !message) {
+                    this.showStatus('Please select contact and enter message', 'error');
+                    return;
+                }
+
+                // Simulate immediate send
+                this.showStatus(`Message sent immediately to ${contact}!`, 'success');
+                console.log(`Sending to ${this.contacts[contact]}: ${message}`);
+            }
+
+            renderMessages() {
+                const container = document.getElementById('messagesList');
+
+                if (this.scheduledMessages.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">No scheduled messages yet</p>';
+                    return;
+                }
+
+                container.innerHTML = this.scheduledMessages
+                    .sort((a, b) => new Date(a.datetime) - new Date(b.datetime))
+                    .map(msg => this.createMessageCard(msg))
+                    .join('');
+            }
+
+            createMessageCard(msg) {
+                const scheduledTime = new Date(msg.datetime);
+                const now = new Date();
+                const isPast = scheduledTime < now;
+
+                return `
+                    <div class="message-card">
+                        <div class="message-header">
+                            <span class="contact-name">${msg.contact}</span>
+                            <span class="message-time">${scheduledTime.toLocaleString()}</span>
+                        </div>
+                        <div class="message-preview">${msg.message.substring(0, 100)}${msg.message.length > 100 ? '...' : ''}</div>
+                        ${msg.fileName ? `<div style="color: #666; font-size: 0.9rem;">📎 ${msg.fileName}</div>` : ''}
+                        <div style="color: #888; font-size: 0.8rem; margin-top: 5px;">
+                            Type: ${msg.scheduleType} • Status: ${isPast ? 'Sent' : msg.status}
+                        </div>
+                        <div class="message-actions">
+                            ${!isPast ? `
+                                <button class="btn btn-small btn-secondary" onclick="scheduler.editMessage(${msg.id})">Edit</button>
+                                <button class="btn btn-small btn-danger" onclick="scheduler.deleteMessage(${msg.id})">Delete</button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+
+            editMessage(id) {
+                const message = this.scheduledMessages.find(msg => msg.id === id);
+                if (message) {
+                    document.getElementById('contact').value = message.contact;
+                    document.getElementById('message').value = message.message;
+                    document.getElementById('scheduleType').value = message.scheduleType;
+                    document.getElementById('datetime').value = message.datetime;
+
+                    this.deleteMessage(id);
+                    this.showStatus('Message loaded for editing', 'success');
+                }
+            }
+
+            deleteMessage(id) {
+                this.scheduledMessages = this.scheduledMessages.filter(msg => msg.id !== id);
+                this.saveMessages();
+                this.renderMessages();
+                this.showStatus('Message deleted', 'success');
+            }
+
+            saveMessages() {
+                localStorage.setItem('scheduledMessages', JSON.stringify(this.scheduledMessages));
+            }
+
+            showStatus(message, type) {
+                const statusDiv = document.getElementById('status');
+                statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+                setTimeout(() => {
+                    statusDiv.innerHTML = '';
+                }, 5000);
+            }
+
+            startMessageChecker() {
+                setInterval(() => {
+                    const now = new Date();
+                    this.scheduledMessages.forEach(msg => {
+                        const scheduledTime = new Date(msg.datetime);
+                        if (scheduledTime <= now && msg.status === 'scheduled') {
+                            this.sendScheduledMessage(msg);
+                        }
+                    });
+                }, 60000); // Check every minute
+            }
+
+            sendScheduledMessage(msg) {
+                // In real implementation, this would integrate with WhatsApp API
+                console.log(`Sending scheduled message to ${msg.phone}: ${msg.message}`);
+
+                msg.status = 'sent';
+                this.saveMessages();
+                this.renderMessages();
+
+                // Handle recurring messages
+                if (msg.scheduleType === 'daily') {
+                    const nextDate = new Date(msg.datetime);
+                    nextDate.setDate(nextDate.getDate() + 1);
+                    msg.datetime = nextDate.toISOString().slice(0, 16);
+                    msg.status = 'scheduled';
+                } else if (msg.scheduleType === 'weekly') {
+                    const nextDate = new Date(msg.datetime);
+                    nextDate.setDate(nextDate.getDate() + 7);
+                    msg.datetime = nextDate.toISOString().slice(0, 16);
+                    msg.status = 'scheduled';
+                }
+
+                this.saveMessages();
+                this.renderMessages();
+            }
+        }
+
+        // Initialize the scheduler
+        const scheduler = new WhatsAppScheduler();
+    </script>
+</body>
+
+</html>
